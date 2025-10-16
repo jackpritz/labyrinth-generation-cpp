@@ -12,11 +12,11 @@ namespace LabyrinthGeneration
     {
         double x{};
         double y{};
-    public:
+
         VectorXY(double x, double y) : x{ x }, y{ y } {}
 
         static double distanceSquared(const VectorXY& left, const VectorXY& right);
-        std::string toString();
+        std::string toString() const;
 
         friend std::ostream& operator<<(std::ostream& os, const VectorXY& dt);
     };

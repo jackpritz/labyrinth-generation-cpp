@@ -21,9 +21,15 @@
     <ClCompile Include="src\VectorXY.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\VectorIntXY.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VectorXY.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VectorIntXY.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

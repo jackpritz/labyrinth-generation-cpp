@@ -2,27 +2,26 @@
 #include <cmath>
 #include <iostream>
 #include <string>
-#include <string_view>
 
 #include "VectorXY.h"
 
 namespace LabyrinthGeneration
 {
-    std::ostream& operator<<(std::ostream& os, const VectorXY& target)
-    {
-        os << "(" << target.x << ", " << target.y << ")";
-        return os;
-    }
-
     double VectorXY::distanceSquared(const VectorXY& left, const VectorXY& right)
     {
         return pow(left.x - right.x, 2)
              + pow(left.y - right.y, 2);
     }
 
-    std::string VectorXY::toString()
+    std::string VectorXY::toString() const
     {
         return "(" + std::to_string(x) + ", " + std::to_string(y) + ")";
+    }
+
+    std::ostream& operator<<(std::ostream& os, const VectorXY& target)
+    {
+        os << "(" << target.x << ", " << target.y << ")";
+        return os;
     }
 
     void runVectorXYTests()
