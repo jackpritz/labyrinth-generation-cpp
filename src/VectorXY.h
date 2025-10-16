@@ -7,14 +7,15 @@
 
 namespace LabyrinthGeneration
 {
+    // Utility struct for XY coordinates
     struct VectorXY
     {
-        int x{};
-        int y{};
+        double x{};
+        double y{};
     public:
-        VectorXY(int x, int y) : x{ x }, y{ y } {}
+        VectorXY(double x, double y) : x{ x }, y{ y } {}
 
-        static int distanceSquared(const VectorXY& left, const VectorXY& right);
+        static double distanceSquared(const VectorXY& left, const VectorXY& right);
         std::string toString();
 
         friend std::ostream& operator<<(std::ostream& os, const VectorXY& dt);

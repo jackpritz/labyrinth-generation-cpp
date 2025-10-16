@@ -14,10 +14,10 @@ namespace LabyrinthGeneration
         return os;
     }
 
-    int VectorXY::distanceSquared(const VectorXY& left, const VectorXY& right)
+    double VectorXY::distanceSquared(const VectorXY& left, const VectorXY& right)
     {
-        return static_cast<int>(pow(left.x - right.x, 2))
-             + static_cast<int>(pow(left.y - right.y, 2));
+        return pow(left.x - right.x, 2)
+             + pow(left.y - right.y, 2);
     }
 
     std::string VectorXY::toString()
@@ -28,11 +28,11 @@ namespace LabyrinthGeneration
     void runVectorXYTests()
     {
         VectorXY zero{ 0, 0 };
-        VectorXY vec{ 3, 4 };
+        VectorXY vec{ 3.0, 4.0 };
 
-        assert(25 == vec.distanceSquared(zero, vec));
+        assert(25.0 == vec.distanceSquared(zero, vec));
 
         std::string vecString{ vec.toString() };
-        assert("(3, 4)" == vec.toString());
+        assert("(3.000000, 4.000000)" == vec.toString());
     }
 }
