@@ -19,8 +19,11 @@ namespace LabyrinthGeneration
     {
         VectorIntXY zero{ 0, 0 };
         VectorIntXY vec{ 3, 4 };
+        VectorIntXY vec2{ 3, 4 };
 
         std::string vecString{ vec.toString() };
         assert("(3, 4)" == vec.toString());
+        assert(zero != vec);
+        assert(vec == vec2);
     }
 }
