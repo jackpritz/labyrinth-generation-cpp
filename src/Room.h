@@ -19,13 +19,13 @@ namespace LabyrinthGeneration
     class Room
     {
     private:
-        const Vector3 dimensions;
-        const std::vector<PlaneTransform> doors;
+        const Vector3 m_dimensions;
+        const std::vector<PlaneTransform> m_doors;
 
     public:
         Room(Vector3 dimensions, std::vector<PlaneTransform> doors) : 
-            dimensions{ dimensions }, 
-            doors{doors}
+            m_dimensions{ dimensions }, 
+            m_doors{doors}
         { }
 
         const Vector3& getDimensions() const;

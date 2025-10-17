@@ -13,19 +13,14 @@ namespace LabyrinthGeneration
     /// </summary>
     class PlaneTransform
     {
-        Vector3 position;
+        Vector3 m_position;
 
         // Cannot equal zero.
         // This will be stored as a normalized vector (magnitude == 1)
-        VectorXY forward;
+        VectorXY m_forward;
 
     public:
-        PlaneTransform(Vector3 position, VectorXY forward) : 
-            position{ position }, 
-            forward{ forward } 
-        {
-            normalizeForward();
-        }
+        PlaneTransform(Vector3 position, VectorXY forward);
 
         const Vector3& getPosition() const;
         void setPosition(Vector3 newPosition);

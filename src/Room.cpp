@@ -6,12 +6,12 @@ namespace LabyrinthGeneration
 {
     const std::vector<PlaneTransform>& Room::getDoors() const
     {
-        return doors;
+        return m_doors;
     }
 
     const Vector3& Room::getDimensions() const
     {
-        return dimensions;
+        return m_dimensions;
     }
 
     void runRoomTests()

@@ -5,37 +5,44 @@
 
 namespace LabyrinthGeneration
 {
+    PlaneTransform::PlaneTransform(Vector3 position, VectorXY forward) :
+        m_position{ position },
+        m_forward{ forward }
+    {
+        normalizeForward();
+    }
+
     const Vector3& PlaneTransform::getPosition() const
     {
-        return position;
+        return m_position;
     }
 
     void PlaneTransform::setPosition(Vector3 newPosition)
     {
-        position = newPosition;
+        m_position = newPosition;
     }
 
     const VectorXY& PlaneTransform::getForward() const
     {
-        return forward;
+        return m_forward;
     }
 
     void PlaneTransform::setForward(VectorXY newForward)
     {
-        forward = newForward;
+        m_forward = newForward;
         normalizeForward();
     }
 
     void PlaneTransform::normalizeForward()
     {
-        if (forward.x == 0 && forward.y == 0)
+        if (m_forward.x == 0 && m_forward.y == 0)
         {
             throw std::runtime_error("Forward VectorXY cannot equal zero.");
         }
 
-        double magnitude = std::sqrt((forward.x * forward.x) + (forward.y * forward.y));
-        forward.x = forward.x / magnitude;
-        forward.y = forward.y / magnitude;
+        double magnitude = std::sqrt((m_forward.x * m_forward.x) + (m_forward.y * m_forward.y));
+        m_forward.x = m_forward.x / magnitude;
+        m_forward.y = m_forward.y / magnitude;
     }
 
     void runPlaneTransformTests()

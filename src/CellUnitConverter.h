@@ -7,10 +7,10 @@ namespace LabyrinthGeneration
     /// </summary>
     class CellUnitConverter
     {
-        double metersPerCellUnit;
+        double m_metersPerCellUnit;
 
     public:
-        CellUnitConverter(double metersPerCellUnit) : metersPerCellUnit{ metersPerCellUnit } {}
+        CellUnitConverter(double metersPerCellUnit) : m_metersPerCellUnit{ metersPerCellUnit } {}
 
         int MetersToCellRound(double meters);
 
