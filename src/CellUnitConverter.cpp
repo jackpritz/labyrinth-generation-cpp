@@ -5,17 +5,17 @@
 
 namespace LabyrinthGeneration
 {
-    int CellUnitConverter::MetersToCellRound(double meters)
+    int CellUnitConverter::metersToCellRound(double meters)
     {
         return static_cast<int>(std::round(meters / m_metersPerCellUnit));
     }
 
-    int CellUnitConverter::MetersToCellFloor(double meters)
+    int CellUnitConverter::metersToCellFloor(double meters)
     {
         return static_cast<int>(std::floor(meters / m_metersPerCellUnit));
     }
 
-    double CellUnitConverter::CellToMeters(int cellCoordinateComponent)
+    double CellUnitConverter::cellToMeters(int cellCoordinateComponent)
     {
         return cellCoordinateComponent * m_metersPerCellUnit;
     }
@@ -24,8 +24,8 @@ namespace LabyrinthGeneration
     {
         CellUnitConverter converter{ 2.5 };
 
-        assert(5 == converter.MetersToCellRound(12));
-        assert(4 == converter.MetersToCellFloor(12));
-        assert(7.5 == converter.CellToMeters(3));
+        assert(5 == converter.metersToCellRound(12));
+        assert(4 == converter.metersToCellFloor(12));
+        assert(7.5 == converter.cellToMeters(3));
     }
 }

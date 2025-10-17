@@ -12,11 +12,11 @@ namespace LabyrinthGeneration
     public:
         CellUnitConverter(double metersPerCellUnit) : m_metersPerCellUnit{ metersPerCellUnit } {}
 
-        int MetersToCellRound(double meters);
+        int metersToCellRound(double meters);
 
-        int MetersToCellFloor(double meters);
+        int metersToCellFloor(double meters);
 
-        double CellToMeters(int cellCoordinateComponent);
+        double cellToMeters(int cellCoordinateComponent);
     };
 
     void runCellUnitConverterTests();
