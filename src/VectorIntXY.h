@@ -6,7 +6,9 @@
 
 namespace LabyrinthGeneration
 {
-    // Utility struct for XY cell coordinates
+    /// <summary>
+    /// Utility struct for XY cell coordinates
+    /// </summary>
     struct VectorIntXY
     {
         int x{};

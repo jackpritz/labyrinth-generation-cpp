@@ -7,7 +7,9 @@
 
 namespace LabyrinthGeneration
 {
-    // Utility struct for XY coordinates
+    /// <summary>
+    /// Utility struct for XY coordinates
+    /// </summary>
     struct VectorXY
     {
         double x{};
