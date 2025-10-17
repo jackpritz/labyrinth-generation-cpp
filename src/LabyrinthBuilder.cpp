@@ -1,5 +1,6 @@
 #include "LabyrinthBuilder.h"
 
+#include <algorithm>
 #include <cassert>
 #include <format>
 #include <iostream>
@@ -79,24 +80,27 @@ namespace LabyrinthGeneration
         Vector3 roomWorldSpaceDimensions{ m_room.getDimensions() };
         VectorIntXY roomCellDimensions{ m_converter.metersToCellRound(roomWorldSpaceDimensions.x), m_converter.metersToCellRound(roomWorldSpaceDimensions.y) };
 
-        int roomSpawnX{ (m_labyrinthDimensions.x / 2) - (roomCellDimensions.x / 2) };
-        int roomSpawnY{ (m_labyrinthDimensions.y / 2) - (roomCellDimensions.y / 2) };
+        VectorIntXY roomSpawnCell
+        {
+            (m_labyrinthDimensions.x / 2) - (roomCellDimensions.x / 2),
+            (m_labyrinthDimensions.y / 2) - (roomCellDimensions.y / 2)
+        };
 
-        spawnRoom(VectorIntXY{ roomSpawnX, roomSpawnY });
+        spawnRoom(roomSpawnCell);
 
-        //addRoomDoorsToDistanceField(room);
+        addRoomDoorsToDistanceField(roomSpawnCell);
     }
 
     /// <summary>
     /// Spawn a room at the given location, which is the x, y minimum extent of the room.
     /// </summary>
     /// <param name="labyrinthCoordinate"></param>
-    void LabyrinthBuilder::spawnRoom(VectorIntXY labyrinthCoordinate)
+    void LabyrinthBuilder::spawnRoom(VectorIntXY cell)
     {
-        addRoomToDistanceField(labyrinthCoordinate);
+        addRoomToDistanceField(cell);
     }
 
-    void LabyrinthBuilder::addRoomToDistanceField(VectorIntXY labyrinthCoordinate)
+    void LabyrinthBuilder::addRoomToDistanceField(VectorIntXY cell)
     {
         Vector3 roomWorldSpaceDimensions{ m_room.getDimensions() };
         VectorIntXY roomCellDimensions{ m_converter.metersToCellRound(roomWorldSpaceDimensions.x), m_converter.metersToCellRound(roomWorldSpaceDimensions.y) };
@@ -106,10 +110,74 @@ namespace LabyrinthGeneration
         {
             for (int x = 0; x < roomCellDimensions.x; x++)
             {
-                int currentRoomX = labyrinthCoordinate.x + x;
-                int currentRoomY = labyrinthCoordinate.y + y;
+                int currentRoomX = cell.x + x;
+                int currentRoomY = cell.y + y;
                 m_distanceField[currentRoomY][currentRoomX] = DISTANCE_FIELD_ROOM;
             }
+        }
+    }
+
+    void LabyrinthBuilder::addRoomDoorsToDistanceField(VectorIntXY cell)
+    {
+        // Mark the space outside each door as a potential door.
+        for (PlaneTransform door : m_room.getDoors())
+        {
+            VectorIntXY doorCoordinate{ findDoorCoordinate(cell, door) };
+
+            // Make sure we are still in the array and not overriding a room
+            if (!isInDistanceField(doorCoordinate) || m_distanceField[doorCoordinate.y][doorCoordinate.x] == DISTANCE_FIELD_ROOM)
+            {
+                continue;
+            }
+
+            // Make that coordinate 0 in the distance field
+            setPotentialDoorCell(doorCoordinate);
+        }
+    }
+
+    /// <summary>
+    /// Spawn the specified door
+    /// from the perspective of the local space of the provided cell.
+    /// </summary>
+    /// <param name="cell"></param>
+    /// <param name="door"></param>
+    VectorIntXY LabyrinthBuilder::findDoorCoordinate(VectorIntXY roomCell, PlaneTransform door)
+    {
+        // Move door position forward into an adjoining cell.
+        // The provided position is the door prefab spawn position.
+        // The forward direction of the provided transform indicates "out of the room"
+        // Adding half of a unit also accounts for float precision.
+        Vector3 doorPosition = door.getPosition();
+        Vector3 hallPosition = Vector3{ doorPosition.x, doorPosition.y, doorPosition.z };
+        VectorXY doorForward{ door.getForward().x, door.getForward().y};
+        hallPosition = hallPosition + ((Vector3{ doorForward.x, doorForward.y, 0 } * 0.5f));
+
+        // Translate to coordinate in grid
+        int doorX{ roomCell.x + m_converter.metersToCellFloor(hallPosition.x) };
+
+        int doorY{ roomCell.y + m_converter.metersToCellFloor(hallPosition.y) };
+
+        return VectorIntXY{ doorX, doorY };
+    }
+
+    bool LabyrinthBuilder::isInDistanceField(VectorIntXY cell)
+    {
+        return 
+            (cell.x >= 0) && 
+            (cell.y >= 0) && 
+            (cell.x < m_labyrinthDimensions.x) && 
+            (cell.y < m_labyrinthDimensions.y);
+    }
+
+    void LabyrinthBuilder::setPotentialDoorCell(VectorIntXY cell)
+    {
+        // If cell not found in zeroDistanceCoordinates cache
+        if (zeroDistanceCoordinates.end() ==
+            std::find(zeroDistanceCoordinates.begin(), zeroDistanceCoordinates.end(), cell))
+        {
+            m_distanceField[cell.y][cell.x] = DISTANCE_FIELD_POTENTIAL_DOOR;
+
+            zeroDistanceCoordinates.push_back(cell);
         }
     }
 
@@ -144,7 +212,7 @@ namespace LabyrinthGeneration
                 }
                 else
                 {
-                    std::cout << std::format("{:04}  ", currentCellValue);
+                    std::cout << std::format(" {:02}   ", currentCellValue);
                 }
             }
 
@@ -193,7 +261,7 @@ namespace LabyrinthGeneration
         };
 
         LabyrinthBuilder builder{
-            VectorIntXY{10, 10},
+            VectorIntXY{20, 20},
             3,
             2.0,
             room

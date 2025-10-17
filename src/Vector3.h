@@ -18,6 +18,11 @@ namespace LabyrinthGeneration
 
         std::string toString() const;
 
+        friend Vector3 operator+(const Vector3& left, const Vector3& right);
+        friend Vector3 operator-(const Vector3& left, const Vector3& right);
+        friend Vector3 operator*(const Vector3& vec, const double& scalar);
+        friend Vector3 operator/(const Vector3& vec, const double& scalar);
+
         friend std::ostream& operator<<(std::ostream& os, const Vector3& dt);
     };
 

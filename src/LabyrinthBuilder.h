@@ -8,6 +8,7 @@
 #include <limits>
 #include <optional>
 #include <stdexcept>
+#include <vector>
 
 namespace LabyrinthGeneration
 {
@@ -37,6 +38,8 @@ namespace LabyrinthGeneration
 
         CellUnitConverter m_converter;
 
+        std::vector<VectorIntXY> zeroDistanceCoordinates{};
+
     public:
         LabyrinthBuilder(
             VectorIntXY labyrinthDimensions, 
@@ -52,9 +55,17 @@ namespace LabyrinthGeneration
         void build();
 
     private:
-        void spawnFirstRoom();
-        void spawnRoom(VectorIntXY labyrinthCoordinate);
-        void addRoomToDistanceField(VectorIntXY labyrinthCoordinate);
+        void spawnFirstRoom ();
+        void spawnRoom      (VectorIntXY cell);
+
+        void addRoomToDistanceField      (VectorIntXY cell);
+        void addRoomDoorsToDistanceField (VectorIntXY cell);
+
+        VectorIntXY findDoorCoordinate (VectorIntXY roomCell, PlaneTransform door);
+        bool        isInDistanceField  (VectorIntXY cell);
+
+        void setPotentialDoorCell(VectorIntXY labyrinthCoordinate);
+
         void debugCoutDistanceField();
     };
 
