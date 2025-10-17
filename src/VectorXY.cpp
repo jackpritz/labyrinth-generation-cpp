@@ -1,5 +1,4 @@
 #include <cassert>
-#include <cmath>
 #include <iostream>
 #include <string>
 
@@ -9,8 +8,8 @@ namespace LabyrinthGeneration
 {
     double VectorXY::distanceSquared(const VectorXY& left, const VectorXY& right)
     {
-        return pow(left.x - right.x, 2)
-             + pow(left.y - right.y, 2);
+        return ((left.x - right.x) * (left.x - right.x))
+             + ((left.y - right.y) * (left.y - right.y));
     }
 
     std::string VectorXY::toString() const
