@@ -1,4 +1,5 @@
 #include "CellUnitConverter.h"
+#include "LabyrinthBuilder.h"
 #include "PlaneTransform.h"
 #include "Room.h"
 #include "Vector3.h"
@@ -15,4 +16,7 @@ int main()
     runVector3Tests();
     runPlaneTransformTests();
     runRoomTests();
+    runLabyrinthBuilderTests();
+
+    return 0;
 }

@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\CellUnitConverter.cpp" />
+    <ClCompile Include="src\LabyrinthBuilder.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PlaneTransform.cpp" />
     <ClCompile Include="src\Room.cpp" />
@@ -29,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CellUnitConverter.h" />
+    <ClInclude Include="src\LabyrinthBuilder.h" />
     <ClInclude Include="src\PlaneTransform.h" />
     <ClInclude Include="src\Room.h" />
     <ClInclude Include="src\Vector3.h" />
