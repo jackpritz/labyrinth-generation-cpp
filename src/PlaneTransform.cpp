@@ -1,6 +1,7 @@
-#include <cassert>
-
 #include "PlaneTransform.h"
+
+#include <cassert>
+#include <cmath>
 
 namespace LabyrinthGeneration
 {
@@ -27,6 +28,11 @@ namespace LabyrinthGeneration
 
     void PlaneTransform::normalizeForward()
     {
+        if (forward.x == 0 && forward.y == 0)
+        {
+            throw std::runtime_error("Forward VectorXY cannot equal zero.");
+        }
+
         double magnitude = std::sqrt((forward.x * forward.x) + (forward.y * forward.y));
         forward.x = forward.x / magnitude;
         forward.y = forward.y / magnitude;

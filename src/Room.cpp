@@ -1,6 +1,6 @@
-#include <cassert>
-
 #include "Room.h"
+
+#include <cassert>
 
 namespace LabyrinthGeneration
 {

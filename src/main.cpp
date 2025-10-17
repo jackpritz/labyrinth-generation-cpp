@@ -1,6 +1,3 @@
-#include <cassert>
-#include <iostream>
-
 #include "CellUnitConverter.h"
 #include "PlaneTransform.h"
 #include "Room.h"

@@ -1,6 +1,7 @@
-#include <cassert>
-
 #include "CellUnitConverter.h"
+
+#include <cassert>
+#include <cmath>
 
 namespace LabyrinthGeneration
 {

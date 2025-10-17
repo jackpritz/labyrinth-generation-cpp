@@ -1,6 +1,7 @@
-#include <cassert>
-
 #include "VectorIntXY.h"
+
+#include <cassert>
+#include <iostream>
 
 namespace LabyrinthGeneration
 {

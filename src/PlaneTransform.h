@@ -1,9 +1,9 @@
 #pragma once
 
-#include <stdexcept>
-
-#include "VectorXY.h"
 #include "Vector3.h"
+#include "VectorXY.h"
+
+#include <stdexcept>
 
 namespace LabyrinthGeneration
 {
@@ -24,10 +24,6 @@ namespace LabyrinthGeneration
             position{ position }, 
             forward{ forward } 
         {
-            if (forward.x == 0 && forward.y == 0)
-            {
-                throw std::runtime_error("Forward VectorXY cannot equal zero.");
-            }
             normalizeForward();
         }
 

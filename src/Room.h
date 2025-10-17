@@ -4,6 +4,7 @@
 
 #include "PlaneTransform.h"
 #include "Vector3.h"
+#include "VectorXY.h"
 
 namespace LabyrinthGeneration
 {

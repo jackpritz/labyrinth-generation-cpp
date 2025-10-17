@@ -1,8 +1,7 @@
+#include "VectorXY.h"
+
 #include <cassert>
 #include <iostream>
-#include <string>
-
-#include "VectorXY.h"
 
 namespace LabyrinthGeneration
 {
