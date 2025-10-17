@@ -11,7 +11,7 @@ namespace LabyrinthGeneration
 
     std::ostream& operator<<(std::ostream& os, const VectorIntXY& target)
     {
-        os << "(" << target.x << ", " << target.y << ")";
+        os << target.toString();
         return os;
     }
 

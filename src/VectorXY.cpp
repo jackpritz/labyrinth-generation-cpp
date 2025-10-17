@@ -20,7 +20,7 @@ namespace LabyrinthGeneration
 
     std::ostream& operator<<(std::ostream& os, const VectorXY& target)
     {
-        os << "(" << target.x << ", " << target.y << ")";
+        os << target.toString();
         return os;
     }
 
