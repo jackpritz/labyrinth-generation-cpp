@@ -21,11 +21,13 @@
   <ItemGroup>
     <ClCompile Include="src\CellUnitConverter.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Vector3.cpp" />
     <ClCompile Include="src\VectorIntXY.cpp" />
     <ClCompile Include="src\VectorXY.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CellUnitConverter.h" />
+    <ClInclude Include="src\Vector3.h" />
     <ClInclude Include="src\VectorXY.h" />
     <ClInclude Include="src\VectorIntXY.h" />
   </ItemGroup>
