@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CellUnitConverter.h"
+#include "Room.h"
 #include "VectorIntXY.h"
 
 #include <iostream>
@@ -31,11 +33,16 @@ namespace LabyrinthGeneration
 
         int ** m_distanceField;
 
+        Room m_room;
+
+        CellUnitConverter m_converter;
+
     public:
         LabyrinthBuilder(
             VectorIntXY labyrinthDimensions, 
             int numRoomsToSpawn,
             double cellUnit,
+            Room room,
             std::optional<int> randomSeed = {});
 
         // Rule of 3: not defining copy constructor or assignment override
@@ -45,6 +52,9 @@ namespace LabyrinthGeneration
         void build();
 
     private:
+        void spawnFirstRoom();
+        void spawnRoom(VectorIntXY labyrinthCoordinate);
+        void addRoomToDistanceField(VectorIntXY labyrinthCoordinate);
         void debugCoutDistanceField();
     };
 

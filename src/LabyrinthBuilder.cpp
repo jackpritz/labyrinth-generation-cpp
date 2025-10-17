@@ -10,10 +10,13 @@ namespace LabyrinthGeneration
         VectorIntXY labyrinthDimensions,
         int numRoomsToSpawn,
         double cellUnit,
+        Room room,
         std::optional<int> randomSeed) :
         m_randomSeed{ randomSeed },
         m_numRoomsToSpawn{numRoomsToSpawn},
         m_cellUnit{cellUnit},
+        m_room{room},
+        m_converter{ m_cellUnit },
         m_labyrinthDimensions{ labyrinthDimensions }
     {
         if (labyrinthDimensions.x < 1 || labyrinthDimensions.y < 1)
@@ -66,7 +69,48 @@ namespace LabyrinthGeneration
             return;
         }
 
+        spawnFirstRoom();
+
         debugCoutDistanceField();
+    }
+
+    void LabyrinthBuilder::spawnFirstRoom()
+    {
+        Vector3 roomWorldSpaceDimensions{ m_room.getDimensions() };
+        VectorIntXY roomCellDimensions{ m_converter.metersToCellRound(roomWorldSpaceDimensions.x), m_converter.metersToCellRound(roomWorldSpaceDimensions.y) };
+
+        int roomSpawnX{ (m_labyrinthDimensions.x / 2) - (roomCellDimensions.x / 2) };
+        int roomSpawnY{ (m_labyrinthDimensions.y / 2) - (roomCellDimensions.y / 2) };
+
+        spawnRoom(VectorIntXY{ roomSpawnX, roomSpawnY });
+
+        //addRoomDoorsToDistanceField(room);
+    }
+
+    /// <summary>
+    /// Spawn a room at the given location, which is the x, y minimum extent of the room.
+    /// </summary>
+    /// <param name="labyrinthCoordinate"></param>
+    void LabyrinthBuilder::spawnRoom(VectorIntXY labyrinthCoordinate)
+    {
+        addRoomToDistanceField(labyrinthCoordinate);
+    }
+
+    void LabyrinthBuilder::addRoomToDistanceField(VectorIntXY labyrinthCoordinate)
+    {
+        Vector3 roomWorldSpaceDimensions{ m_room.getDimensions() };
+        VectorIntXY roomCellDimensions{ m_converter.metersToCellRound(roomWorldSpaceDimensions.x), m_converter.metersToCellRound(roomWorldSpaceDimensions.y) };
+
+        // Make room tiles distance max int. Max int denotes not passable.
+        for (int y = 0; y < roomCellDimensions.y; y++)
+        {
+            for (int x = 0; x < roomCellDimensions.x; x++)
+            {
+                int currentRoomX = labyrinthCoordinate.x + x;
+                int currentRoomY = labyrinthCoordinate.y + y;
+                m_distanceField[currentRoomY][currentRoomX] = DISTANCE_FIELD_ROOM;
+            }
+        }
     }
 
     void LabyrinthBuilder::debugCoutDistanceField()
@@ -115,10 +159,44 @@ namespace LabyrinthGeneration
 
         // dev testing as we go
 
+        Room room
+        {
+            // Define a room that is:
+            // - 6 x 6 meters footprint
+            // - Has a door in the center of each wall
+            Room
+            {
+                Vector3{6, 6, 3}, // room dimensions
+                { // doors
+                    PlaneTransform
+                    {
+                        Vector3{3, 0, 0},
+                        VectorXY{0, -1}
+                    },
+                    PlaneTransform
+                    {
+                        Vector3{3, 6, 0},
+                        VectorXY{0, 1}
+                    },
+                    PlaneTransform
+                    {
+                        Vector3{0, 3, 0},
+                        VectorXY{-1, 0}
+                    },
+                    PlaneTransform
+                    {
+                        Vector3{6, 3, 0},
+                        VectorXY{1, 0}
+                    },
+                }
+            }
+        };
+
         LabyrinthBuilder builder{
-            VectorIntXY{10, 5},
+            VectorIntXY{10, 10},
             3,
-            2.0
+            2.0,
+            room
         };
         
         builder.build();
