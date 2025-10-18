@@ -7,7 +7,6 @@
 #include <iostream>
 #include <limits>
 #include <optional>
-#include <stdexcept>
 #include <vector>
 
 namespace LabyrinthGeneration
@@ -32,7 +31,7 @@ namespace LabyrinthGeneration
         // This value represents the world space dimension of one side of a cell.
         double m_cellUnit{ 1 };
 
-        int ** m_distanceField;
+        std::vector<std::vector<int>> m_distanceField;
 
         Room m_room;
 
@@ -47,10 +46,6 @@ namespace LabyrinthGeneration
             double cellUnit,
             Room room,
             std::optional<int> randomSeed = {});
-
-        // Rule of 3: not defining copy constructor or assignment override
-        // because all we are cleaning up here is internal data that is not worth copying.
-        ~LabyrinthBuilder();
 
         void build();
 

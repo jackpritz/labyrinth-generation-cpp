@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cassert>
 #include <format>
-#include <iostream>
 
 namespace LabyrinthGeneration
 {
@@ -34,24 +33,7 @@ namespace LabyrinthGeneration
             throw std::runtime_error((error));
         }
 
-        m_distanceField = new int*[m_labyrinthDimensions.y];
-        for (int y = 0; y < m_labyrinthDimensions.y; y++)
-        {
-            m_distanceField[y] = new int[m_labyrinthDimensions.x];
-        }
-    }
-
-    // Rule of 3: not defining copy constructor or assignment override
-    // because all we are cleaning up here is internal data that is not worth copying.
-    LabyrinthBuilder::~LabyrinthBuilder()
-    {
-        
-        for (int y = 0; y < m_labyrinthDimensions.y; y++)
-        {
-            delete m_distanceField[y];
-        }
-
-        delete m_distanceField;
+        m_distanceField = std::vector(m_labyrinthDimensions.y, std::vector<int>(m_labyrinthDimensions.x));
     }
 
     void LabyrinthBuilder::build()
