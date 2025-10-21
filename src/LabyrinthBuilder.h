@@ -39,6 +39,8 @@ namespace LabyrinthGeneration
 
         std::vector<VectorIntXY> zeroDistanceCoordinates{};
 
+        std::vector<VectorIntXY> m_traversalDirections{ {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+
     public:
         LabyrinthBuilder(
             VectorIntXY labyrinthDimensions, 

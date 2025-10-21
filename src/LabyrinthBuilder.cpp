@@ -166,8 +166,6 @@ namespace LabyrinthGeneration
         }
     }
 
-    std::vector<VectorIntXY> m_traversalDirections{ {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
-
     void LabyrinthBuilder::recalculateDistanceField()
     {
         // Check all zero distance coordinates for recalculation of neighbors
