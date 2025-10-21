@@ -16,15 +16,10 @@ namespace LabyrinthGeneration
 
         std::string toString() const;
 
-        bool operator==(const VectorIntXY& other) const 
-        {
-            return (x == other.x && y == other.y);
-        }
-
-        bool operator!=(const VectorIntXY& other) const 
-        {
-            return !(*this == other); // Reuse the overloaded operator==
-        }
+        friend VectorIntXY operator+(const VectorIntXY& left, const VectorIntXY& right);
+        friend VectorIntXY operator-(const VectorIntXY& left, const VectorIntXY& right);
+        friend bool operator==(const VectorIntXY& left, const VectorIntXY& right);
+        friend bool operator!=(const VectorIntXY& left, const VectorIntXY& right);
 
         friend std::ostream& operator<<(std::ostream& os, const VectorIntXY& dt);
     };

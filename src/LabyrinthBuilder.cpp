@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <format>
+#include <queue>
 
 namespace LabyrinthGeneration
 {
@@ -53,6 +54,8 @@ namespace LabyrinthGeneration
         }
 
         spawnFirstRoom();
+
+        recalculateDistanceField();
 
         debugCoutDistanceField();
     }
@@ -160,6 +163,47 @@ namespace LabyrinthGeneration
             m_distanceField[cell.y][cell.x] = DISTANCE_FIELD_POTENTIAL_DOOR;
 
             zeroDistanceCoordinates.push_back(cell);
+        }
+    }
+
+    std::vector<VectorIntXY> m_traversalDirections{ {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+
+    void LabyrinthBuilder::recalculateDistanceField()
+    {
+        // Check all zero distance coordinates for recalculation of neighbors
+        std::queue<VectorIntXY> toCheck{};
+        for (VectorIntXY coordinate : zeroDistanceCoordinates)
+        {
+            toCheck.push(coordinate);
+        }
+
+        while (toCheck.size() > 0)
+        {
+            VectorIntXY currentCoordinate{ toCheck.front() };
+            toCheck.pop();
+
+            int currentCoordinateDistance = m_distanceField[currentCoordinate.y][currentCoordinate.x];
+
+            // max(currentCoordinateDistance, 0) to handle sentinel values.
+            if (currentCoordinateDistance < 0) { currentCoordinateDistance = 0; }
+
+            // Check each direction. If a neighbor cell needs a value, update and queue it. Otherwise move to the next cell.
+            for (VectorIntXY direction : m_traversalDirections)
+            {
+                VectorIntXY cellToCheck = currentCoordinate + direction;
+
+                if (!isInDistanceField(cellToCheck))
+                {
+                    continue;
+                }
+
+                if (m_distanceField[cellToCheck.y][cellToCheck.x] != DISTANCE_FIELD_ROOM
+                    && m_distanceField[cellToCheck.y][cellToCheck.x] > currentCoordinateDistance + 1)
+                {
+                    m_distanceField[cellToCheck.y][cellToCheck.x] = currentCoordinateDistance + 1;
+                    toCheck.push(cellToCheck);
+                }
+            }
         }
     }
 

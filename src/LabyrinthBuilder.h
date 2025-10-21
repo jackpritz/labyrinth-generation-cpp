@@ -61,6 +61,8 @@ namespace LabyrinthGeneration
 
         void setPotentialDoorCell(VectorIntXY labyrinthCoordinate);
 
+        void recalculateDistanceField();
+
         void debugCoutDistanceField();
     };
 

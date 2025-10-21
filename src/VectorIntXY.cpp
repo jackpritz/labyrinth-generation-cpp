@@ -10,6 +10,32 @@ namespace LabyrinthGeneration
         return "(" + std::to_string(x) + ", " + std::to_string(y) + ")";
     }
 
+    VectorIntXY operator+(const VectorIntXY& left, const VectorIntXY& right)
+    {
+        return VectorIntXY{
+            left.x + right.x,
+            left.y + right.y
+        };
+    }
+
+    VectorIntXY operator-(const VectorIntXY& left, const VectorIntXY& right)
+    {
+        return VectorIntXY{
+            left.x + right.x,
+            left.y + right.y
+        };
+    }
+
+    bool operator==(const VectorIntXY& left, const VectorIntXY& right)
+    {
+        return (left.x == right.x && left.y == right.y);
+    }
+
+    bool operator!=(const VectorIntXY& left, const VectorIntXY& right)
+    {
+        return !(left == right); // Reuse the overloaded operator==
+    }
+
     std::ostream& operator<<(std::ostream& os, const VectorIntXY& target)
     {
         os << target.toString();
