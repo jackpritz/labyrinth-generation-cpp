@@ -12,6 +12,7 @@ namespace LabyrinthGeneration
         int x{};
         int y{};
 
+        VectorIntXY() = default;
         VectorIntXY(int x, int y) : x{ x }, y{ y } {}
 
         std::string toString() const;

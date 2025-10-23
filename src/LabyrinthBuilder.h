@@ -7,6 +7,7 @@
 #include <iostream>
 #include <limits>
 #include <optional>
+#include <random>
 #include <vector>
 
 namespace LabyrinthGeneration
@@ -37,9 +38,11 @@ namespace LabyrinthGeneration
 
         CellUnitConverter m_converter;
 
-        std::vector<VectorIntXY> zeroDistanceCoordinates{};
+        std::vector<VectorIntXY> m_zeroDistanceCoordinates{};
 
         std::vector<VectorIntXY> m_traversalDirections{ {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+
+        std::default_random_engine m_randomGenerator{};
 
     public:
         LabyrinthBuilder(
@@ -47,21 +50,28 @@ namespace LabyrinthGeneration
             int numRoomsToSpawn,
             double cellUnit,
             Room room,
-            std::optional<int> randomSeed = {});
+            std::optional<unsigned int> randomSeed = {});
 
         void build();
 
     private:
+        void spawnRooms     ();
         void spawnFirstRoom ();
         void spawnRoom      (VectorIntXY cell);
 
         void addRoomToDistanceField      (VectorIntXY cell);
         void addRoomDoorsToDistanceField (VectorIntXY cell);
 
-        VectorIntXY findDoorCoordinate (VectorIntXY roomCell, PlaneTransform door);
-        bool        isInDistanceField  (VectorIntXY cell);
+        VectorIntXY findDoorCoordinate            (VectorIntXY roomCell, PlaneTransform door);
+        bool        isInDistanceField             (VectorIntXY cell);
+        bool        areRoomExtentsWithinLabyrinth (VectorIntXY position, int sizeX, int sizeY);
 
         void setPotentialDoorCell(VectorIntXY labyrinthCoordinate);
+        void setHallwayCell(VectorIntXY cell);
+
+        VectorXY nextCoordinateAlongSearchPath(VectorXY currentposition, VectorXY searchDirection);
+
+        void connectToExistingRooms(VectorIntXY roomSpawnCoordinate, const Room& room);
 
         void recalculateDistanceField();
 

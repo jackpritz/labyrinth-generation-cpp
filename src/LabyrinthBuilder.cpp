@@ -12,7 +12,7 @@ namespace LabyrinthGeneration
         int numRoomsToSpawn,
         double cellUnit,
         Room room,
-        std::optional<int> randomSeed) :
+        std::optional<unsigned int> randomSeed) :
         m_randomSeed{ randomSeed },
         m_numRoomsToSpawn{numRoomsToSpawn},
         m_cellUnit{cellUnit},
@@ -53,11 +53,110 @@ namespace LabyrinthGeneration
             return;
         }
 
-        spawnFirstRoom();
+        // Set up random number generator
+        if (m_randomSeed.has_value())
+        { 
+            m_randomGenerator.seed(m_randomSeed.value());
+        }
+        else
+        {
+            unsigned int seed = static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count());
+            std::cout << "Using random seed: " << seed << "\n";
+            m_randomGenerator.seed(seed);
+        }
 
-        recalculateDistanceField();
+        spawnRooms();
 
         debugCoutDistanceField();
+    }
+
+    void LabyrinthBuilder::spawnRooms()
+    {
+        spawnFirstRoom();
+        recalculateDistanceField();
+
+        VectorIntXY center{m_labyrinthDimensions.x / 2, m_labyrinthDimensions.y / 2 };
+        int numToSpawn{ m_numRoomsToSpawn - 1 };
+
+        // Set up a distribution for the random number generator
+        std::uniform_real_distribution<double> distribution(-1.0, 1.0);
+
+        while (numToSpawn > 0)
+        {
+            // Pick a random direction
+            VectorXY direction{
+                distribution(m_randomGenerator) ,
+                distribution(m_randomGenerator) };
+
+            // Find an open space.
+            // Start at center and move in the chosen direction looking for enough space for the new room.
+            int roomsizeX = m_converter.metersToCellRound(m_room.getDimensions().x);
+            int roomsizeY = m_converter.metersToCellRound(m_room.getDimensions().y);
+
+            VectorXY potentialRoomPosition{
+                m_converter.cellToMeters(center.x),
+                m_converter.cellToMeters(center.y)
+            };
+
+            VectorIntXY potentialRoomCoordinates{ center.x, center.y };
+            bool foundSpawn{ false };
+
+            // Search for open space along the search path until:
+            // 1. we find open space or
+            // 2. we hit the edge.
+            while (areRoomExtentsWithinLabyrinth(potentialRoomCoordinates, roomsizeX, roomsizeY))
+            {
+                bool roomPositionValid = true;
+
+                // if we find overlap, increment our distance and continue
+                for (int y = 0; y < roomsizeY; y++)
+                {
+                    if (!roomPositionValid) { break; }
+
+                    for (int x = 0; x < roomsizeX; x++)
+                    {
+                        int cellValue = m_distanceField[potentialRoomCoordinates.y + y][potentialRoomCoordinates.x + x];
+                        if (cellValue == DISTANCE_FIELD_ROOM || cellValue <= 0)
+                        {
+                            potentialRoomPosition = nextCoordinateAlongSearchPath(potentialRoomPosition, direction);
+                            potentialRoomCoordinates = VectorIntXY(
+                                m_converter.metersToCellFloor(potentialRoomPosition.x),
+                                m_converter.metersToCellFloor(potentialRoomPosition.y));
+
+                            // break out to while loop
+                            roomPositionValid = false;
+                            break;
+                        }
+                    }
+                }
+
+                // otherwise, we have found our spawn position
+                if (roomPositionValid)
+                {
+                    foundSpawn = true;
+                    break;
+                }
+            }
+
+            if (!foundSpawn)
+            {
+                std::cout << "LabyrinthBuilder could not spawn a room along a search path! Trying a new path.\n";
+                continue; // try again
+            }
+            else
+            {
+                numToSpawn--;
+            }
+
+            spawnRoom(potentialRoomCoordinates);
+
+            connectToExistingRooms(potentialRoomCoordinates, m_room);
+
+            addRoomDoorsToDistanceField(potentialRoomCoordinates);
+
+            // Update distance field
+            recalculateDistanceField();
+        }
     }
 
     void LabyrinthBuilder::spawnFirstRoom()
@@ -105,7 +204,7 @@ namespace LabyrinthGeneration
     void LabyrinthBuilder::addRoomDoorsToDistanceField(VectorIntXY cell)
     {
         // Mark the space outside each door as a potential door.
-        for (PlaneTransform door : m_room.getDoors())
+        for (const PlaneTransform& door : m_room.getDoors())
         {
             VectorIntXY doorCoordinate{ findDoorCoordinate(cell, door) };
 
@@ -154,23 +253,155 @@ namespace LabyrinthGeneration
             (cell.y < m_labyrinthDimensions.y);
     }
 
+    bool LabyrinthBuilder::areRoomExtentsWithinLabyrinth(VectorIntXY position, int sizeX, int sizeY)
+    {
+        return
+            isInDistanceField(position + VectorIntXY{ 0, sizeY }) &&
+            isInDistanceField(position) &&
+            isInDistanceField(position + VectorIntXY{ sizeX, 0 }) &&
+            isInDistanceField(position + VectorIntXY{ sizeX, sizeY });
+    }
+
     void LabyrinthBuilder::setPotentialDoorCell(VectorIntXY cell)
     {
         // If cell not found in zeroDistanceCoordinates cache
-        if (zeroDistanceCoordinates.end() ==
-            std::find(zeroDistanceCoordinates.begin(), zeroDistanceCoordinates.end(), cell))
+        if (m_zeroDistanceCoordinates.end() ==
+            std::find(m_zeroDistanceCoordinates.begin(), m_zeroDistanceCoordinates.end(), cell))
         {
             m_distanceField[cell.y][cell.x] = DISTANCE_FIELD_POTENTIAL_DOOR;
 
-            zeroDistanceCoordinates.push_back(cell);
+            m_zeroDistanceCoordinates.push_back(cell);
         }
     }
+
+    void LabyrinthBuilder::setHallwayCell(VectorIntXY cell)
+    {
+        // hall overrides potential door. Always set this.
+        m_distanceField[cell.y][cell.x] = DISTANCE_FIELD_HALL;
+
+        VectorIntXY coordinate {cell.x, cell.y};
+        if (std::find(m_zeroDistanceCoordinates.begin(), m_zeroDistanceCoordinates.end(), coordinate) == m_zeroDistanceCoordinates.end())
+        {
+            m_zeroDistanceCoordinates.push_back(coordinate);
+        }
+    }
+
+    VectorXY LabyrinthBuilder::nextCoordinateAlongSearchPath(VectorXY currentposition, VectorXY searchDirection)
+    {
+        double nextX, nextY;
+
+        if (searchDirection.x > 0)
+        {
+            nextX = currentposition.x + m_cellUnit;
+        }
+        else
+        {
+            nextX = currentposition.x - m_cellUnit;
+        }
+
+        if (searchDirection.y > 0)
+        {
+            nextY = currentposition.y + m_cellUnit;
+        }
+        else
+        {
+            nextY = currentposition.y - m_cellUnit;
+        }
+
+        // Use z = mx + b to fill in missing values.
+        // m: slope
+        // b: z such that x = 0
+        double slope = searchDirection.y / searchDirection.x;
+        double yIntercept = currentposition.y - (slope * currentposition.x); // b = z - (m * x)
+        VectorXY targetInterceptX = VectorXY{
+            nextX,
+            (slope * nextX) + yIntercept // y = (m * x) + b
+        };
+        VectorXY targetInterceptZ = VectorXY{
+            (nextY - yIntercept) / slope, // x = (y - b) / m
+            nextY
+        };
+
+        // Choose closest candidate as new currentPosition
+        if (VectorXY::distanceSquared(currentposition, targetInterceptX) < VectorXY::distanceSquared(currentposition, targetInterceptZ))
+        {
+            return targetInterceptX;
+        }
+        else
+        {
+            return targetInterceptZ;
+        }
+    }
+
+    void LabyrinthBuilder::connectToExistingRooms(VectorIntXY roomSpawnCoordinate, const Room& room)
+    {
+        std::vector<PlaneTransform> doors = room.getDoors();
+        if (doors.size() == 0) { throw std::runtime_error{ "Tried to connect a room, but it has no doors!" }; }
+
+        VectorIntXY minimumDistanceDoor{};
+        int currentMinimumDistance{ std::numeric_limits<int>::max() };
+
+        // pick a door to connect based on minimum distance in distance field
+        for (const PlaneTransform& door : doors )
+        {
+            VectorIntXY doorCoordinates = findDoorCoordinate(roomSpawnCoordinate, door);
+            int currentDistance{ m_distanceField[doorCoordinates.y][doorCoordinates.x] };
+
+            if (isInDistanceField(doorCoordinates) &&
+                currentDistance < currentMinimumDistance)
+            {
+                currentMinimumDistance = currentDistance;
+                minimumDistanceDoor = doorCoordinates;
+            }
+        }
+
+        VectorIntXY currentPathLocation = minimumDistanceDoor;
+
+        std::vector<VectorIntXY> path{};
+        path.push_back(currentPathLocation);
+
+        while (m_distanceField[currentPathLocation.y][currentPathLocation.x] > 0)
+        {
+            // look in all directions for minimum distance. set that as new current location.
+            VectorIntXY minimumDistanceCell{};
+            int currentMinimumCellDistance{ std::numeric_limits<int>::max() };
+
+            for (VectorIntXY direction : m_traversalDirections)
+            {
+                VectorIntXY cellCoord{ currentPathLocation + direction };
+                int cellValue{ m_distanceField[cellCoord.y][cellCoord.x] };
+
+                if (cellValue < currentMinimumCellDistance)
+                {
+                    currentMinimumCellDistance = cellValue;
+                    minimumDistanceCell = cellCoord;
+                }
+            }
+
+            currentPathLocation = minimumDistanceCell;
+            path.push_back(currentPathLocation);
+        }
+
+        for (VectorIntXY cell : path)
+        {
+            if (m_distanceField[cell.y][cell.x] != DISTANCE_FIELD_HALL)
+            {
+                // spawn hall floor
+                //var newHall = Instantiate(hallFloorAndCeiling, transform);
+                //newHall.transform.localPosition = unitConverter.CellToMeters(new Vector3(cell.x, 0, cell.z));
+
+                setHallwayCell(cell);
+            }
+        }
+    }
+
+
 
     void LabyrinthBuilder::recalculateDistanceField()
     {
         // Check all zero distance coordinates for recalculation of neighbors
         std::queue<VectorIntXY> toCheck{};
-        for (VectorIntXY coordinate : zeroDistanceCoordinates)
+        for (VectorIntXY coordinate : m_zeroDistanceCoordinates)
         {
             toCheck.push(coordinate);
         }
@@ -284,11 +515,14 @@ namespace LabyrinthGeneration
             }
         };
 
+        //std::optional<unsigned int> seed{ static_cast<unsigned int>(2269388892) }; // explicit random seed
+
         LabyrinthBuilder builder{
-            VectorIntXY{20, 20},
-            3,
+            VectorIntXY{40, 40},
+            8,
             2.0,
-            room
+            room,
+            //seed
         };
         
         builder.build();
