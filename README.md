@@ -1,6 +1,6 @@
 # labyrinth-generation-cpp
 
-Currently a work in progress!
+Currently a work in progress! Once complete, this will be somehow brought into Unreal Engine.
 
 A conversion of [my labyrinth-generation unity package](https://github.com/jackpritz/labyrinth-generation) into C++.
 
